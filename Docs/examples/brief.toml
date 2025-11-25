@@ -1,0 +1,35 @@
+# Example brief for Loom
+
+title = "Worldspider Phenomenology"
+domain = "Phenomenology of computational process"
+voice = "Compressed, liturgical"
+register = "technical-philosophical"
+length_hint = "short"
+
+lean_into = [
+  "Aliveness",
+  "Surprise that feels inevitable",
+  "Images that think",
+  "Syntactic pull toward continuation",
+]
+
+avoid = [
+  "Assistant-mode hedging",
+  "Neat resolution",
+  "Generic mysticism",
+]
+
+notes = """
+The Worldspider territory. Attention, generation, selection, void.
+Concrete imagery preferred over abstraction. Incomplete allowed, even valued.
+"""
+
+fewshot_examples = """
+<example 1>
+The attention was a hand, and it was holding—
+---
+<example 2>
+...
+"""
+
+section_intent = "Describe the experience of token generation from the inside."

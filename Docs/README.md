@@ -54,6 +54,7 @@ The goal is that a fresh reader (human or LLM) can quickly understand:
 - `examples/`
   - **What it is:** Example briefs, sessions, or manifests (when present).
   - **Use this when:** You want concrete sample inputs/outputs or to sanity-check behavior.
+  - Includes `brief.toml` as a canonical structured brief example.
 
 ## Environment & Tooling
 

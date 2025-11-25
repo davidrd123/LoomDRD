@@ -8,7 +8,10 @@ version = "0.0.0"
 description = "Loom phenomenology engine and tooling"
 readme = "Docs/README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "anthropic>=0.40.0",
+    "rich>=13.0",
+]
 
 [project.urls]
 homepage = "https://example.com/loom-drd"
@@ -22,4 +25,3 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["loom"]
-
