@@ -275,6 +275,14 @@ class BaseEngine(Protocol):
         max_tokens: int,
     ) -> List[GeneratedCandidate]:
         ...
+
+### 5.2. v0 Default Base Engine: Claude CLI-Sim
+
+For v0, the default `BaseEngine` implementation is **Claude CLI-sim** (see `Docs/adr/0004-base-engine-v0-claude-cli-sim.md` and `Docs/loom-backend-plan.md`):
+
+- Each candidate is produced by calling Claude in a "CLI simulation" mode.
+- Token-level logprobs are not available; `token_logprobs` and `step_logprob` will typically be `None`.
+- The `BaseEngine` interface remains unchanged so that vLLM or other base models can be swapped in later without changing the orchestrator or UI contracts.
 ```
 
 ### 5.1. Base Prompt Shape
@@ -732,4 +740,3 @@ Not blockers for v0, but worth keeping in mind:
 
    * Qwen base vs CLI‑sim Claude as pseudo‑base.
    * With CLI‑sim you lose logprobs → `logprob_gap` and divergence queries become unavailable or approximate.
-

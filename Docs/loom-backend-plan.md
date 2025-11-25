@@ -1,4 +1,17 @@
-## Revised Dataclasses
+## Loom Backend Implementation Plan
+
+This document refines the architecture in `Docs/loom_spec_v0.md` into concrete Python types, interfaces, and components for the Loom backend.
+
+It covers:
+
+- Dataclasses for `Node`, `DecisionEvent`, and `Loom`.
+- Base engine (`Generator`) interface and v0 implementation.
+- Selector structures (human, stateless LLM, agentic LLM).
+- High-level backend layout and CLI / UI integration.
+
+---
+
+## Core Dataclasses
 
 ```python
 from dataclasses import dataclass, field
@@ -339,6 +352,157 @@ class Loom:
             loom.decision_events[k] = DecisionEvent(**v)
         return loom
 ```
+
+---
+
+## Base Engine v0: Generator Interface & Claude CLI-Sim
+
+### GeneratedCandidate & Generator Protocol
+
+At the base engine boundary we work with simple candidate records and a generator interface:
+
+```python
+from dataclasses import dataclass
+from typing import List, Optional, Protocol
+
+
+@dataclass
+class GeneratedCandidate:
+    node_id: str
+    text: str
+    token_ids: List[int]
+    token_logprobs: Optional[List[float]]
+    step_logprob: Optional[float]
+
+
+class Generator(Protocol):
+    def generate_candidates(
+        self,
+        *,
+        full_text: str,
+        fewshot_examples: str,
+        section_intent: str,
+        rough_draft: Optional[str],
+        n: int,
+        max_tokens: int,
+    ) -> List[GeneratedCandidate]:
+        ...
+```
+
+The orchestrator is responsible for:
+
+- Building the text prompt (few-shot examples, section intent, rough draft, full_text).
+- Calling `Generator.generate_candidates(...)` and turning each `GeneratedCandidate` into a `Node` via `Node.from_candidate`.
+
+### BaseEngineConfig & Generator Factory
+
+We configure the base engine via a small config object and a factory:
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class BaseEngineConfig:
+    engine_type: str = "claude_cli_sim"  # later: "vllm", "together", etc.
+    model_name: str = "claude-3-5-sonnet-latest"
+    segment_tokens: int = 6
+    branching_factor: int = 8
+    temperature: float = 1.0
+    top_p: float = 1.0
+    max_logprobs: int = 0  # 0 for CLI-sim (no logprobs)
+
+
+def make_generator(cfg: BaseEngineConfig, client: "anthropic.Anthropic") -> Generator:
+    if cfg.engine_type == "claude_cli_sim":
+        return ClaudeCLISimGenerator(
+            client=client,
+            model=cfg.model_name,
+            temperature=cfg.temperature,
+            top_p=cfg.top_p,
+        )
+    # Future:
+    # if cfg.engine_type == "vllm": ...
+    # if cfg.engine_type == "together": ...
+    raise ValueError(f"Unknown engine_type: {cfg.engine_type}")
+```
+
+### ClaudeCLISimGenerator Sketch
+
+The v0 base engine uses Claude in a CLI-simulation mode. It prioritizes simplicity and does not expose logprobs:
+
+```python
+import anthropic
+from dataclasses import dataclass
+from typing import List, Optional
+
+
+@dataclass
+class ClaudeCLISimGenerator:
+    client: anthropic.Anthropic
+    model: str = "claude-3-5-sonnet-latest"
+    temperature: float = 1.0
+    top_p: float = 1.0
+
+    def generate_candidates(
+        self,
+        *,
+        full_text: str,
+        fewshot_examples: str,
+        section_intent: str,
+        rough_draft: Optional[str],
+        n: int,
+        max_tokens: int,
+    ) -> List[GeneratedCandidate]:
+        candidates: List[GeneratedCandidate] = []
+
+        prompt = build_base_prompt(
+            fewshot_examples=fewshot_examples,
+            section_intent=section_intent,
+            rough_draft=rough_draft,
+            full_text=full_text,
+        )
+
+        for _ in range(n):
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                system=(
+                    "You are in CLI simulation mode. "
+                    "Respond only with the output of the requested command."
+                ),
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f\"\"\"<cmd>cat draft.txt</cmd>
+
+{prompt}\"\"\",
+                    }
+                ],
+            )
+            text = response.content[0].text
+            candidates.append(
+                GeneratedCandidate(
+                    node_id=new_id(),
+                    text=text,
+                    token_ids=[],
+                    token_logprobs=None,
+                    step_logprob=None,
+                )
+            )
+
+        return candidates
+```
+
+Notes:
+
+- `build_base_prompt(...)` is a helper (not shown) that implements the shape described in `Docs/loom_spec_v0.md` §5.1.
+- For v0 we do **not** compute token IDs or logprobs; those fields are left empty/`None`.
+- The orchestrator will pass each `GeneratedCandidate` to `Node.from_candidate`, which in turn populates the Loom.
+
+This keeps the base engine plug-in point stable while making the v0 implementation trivial to mock and reason about.
 
 ---
 

@@ -8,7 +8,7 @@ Date: 2025-11-25
 - Maintain **high-confidence, high-coverage tests** for the Loom codebase.
 - Treat the Loom backend and data model as **infrastructure**, not just app code.
 - Keep tests **fast, deterministic, and hermetic** (no network, no real LLM calls).
-- Use tests as an executable form of the **specs in** `Docs/loom_spec_v0.md` and `Docs/claude_plan.md`.
+- Use tests as an executable form of the **specs in** `Docs/loom_spec_v0.md` and `Docs/loom-backend-plan.md`.
 
 ## Tooling & Structure
 
@@ -159,4 +159,3 @@ This document should be updated as the codebase grows, especially when:
 - We add new selector modes or generators.
 - We introduce new public APIs or JSON schemas.
 - We refine coverage targets or CI workflows.
-

@@ -5,7 +5,7 @@ Date: 2025-11-25
 
 ## Context
 
-- We already have detailed Python-oriented design docs in `Docs/loom_spec_v0.md` and `Docs/claude_plan.md` (dataclasses, generator interfaces, orchestrator sketches).
+- We already have detailed Python-oriented design docs in `Docs/loom_spec_v0.md` and `Docs/loom-backend-plan.md` (dataclasses, generator interfaces, orchestrator sketches).
 - Loom’s core responsibilities are:
   - Data model: `Node`, `DecisionEvent`, `Loom`, `SessionConfig`.
   - Persistence and manifests (JSON + NDJSON).
@@ -40,4 +40,3 @@ Implement the core Loom backend in **Python** as the single source of truth.
 - Python-first approach keeps base-model integration straightforward (vLLM, Together, Anthropic SDK).
 - Frontends (CLI, FastHTML, React/TS) consume a simple Loom API and JSON structures; they do not own or duplicate core state.
 - If we later add TypeScript/Node components, they remain thin clients over the Python Loom API rather than alternate sources of truth.
-
