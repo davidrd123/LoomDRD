@@ -55,6 +55,18 @@ The goal is that a fresh reader (human or LLM) can quickly understand:
   - **What it is:** Example briefs, sessions, or manifests (when present).
   - **Use this when:** You want concrete sample inputs/outputs or to sanity-check behavior.
 
+## Environment & Tooling
+
+- **Python management:** Use [`uv`](https://github.com/astral-sh/uv) as the default way to manage the Python environment and run commands.
+  - Create/sync environment (from `pyproject.toml`):
+    - `uv sync`
+  - Run tests:
+    - `uv run pytest`
+  - Add dependencies (runtime or dev):
+    - `uv add <package>`
+    - `uv add --group dev <package>`  # for test/dev-only deps
+- The Phase 0 scope only requires the standard library plus the dev dependencies listed under the `dev` group in `pyproject.toml` (pytest, pytest-cov, hypothesis). Later phases will add runtime deps (e.g. Anthropic SDK, FastHTML, React tooling).
+
 ## How to Read This Repo as a New Contributor
 
 1. Start with `loom_spec_v0.md` to get the conceptual model.
@@ -63,4 +75,3 @@ The goal is that a fresh reader (human or LLM) can quickly understand:
 4. Check `testing-strategy.md` before adding or changing behavior, so new code fits the testing philosophy.
 
 This structure is intended to be stable; if new docs are added, please update this `README` with a short description and intended use. 
-

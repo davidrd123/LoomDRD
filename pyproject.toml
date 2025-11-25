@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "loom-drd"
+version = "0.0.0"
+description = "Loom phenomenology engine and tooling"
+readme = "Docs/README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.urls]
+homepage = "https://example.com/loom-drd"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "hypothesis>=6.0",
+]
+
