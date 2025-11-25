@@ -740,3 +740,30 @@ Not blockers for v0, but worth keeping in mind:
 
    * Qwen base vs CLI‑sim Claude as pseudo‑base.
    * With CLI‑sim you lose logprobs → `logprob_gap` and divergence queries become unavailable or approximate.
+
+---
+
+## 13. Future Considerations (Beyond v0)
+
+These are longer‑term refinements informed by design review; they are **not** requirements for v0 but may shape Phase 2+.
+
+1. **Clarify workflow as first‑class API**
+
+   * Make the “clarify” path explicit in Loom’s API (e.g. a helper like `resolve_clarification(event_id, human_response, chosen_node_id, reason)`).
+   * Decide how clarify events interact with `held_paths` (e.g. temporarily suspending the active path, resuming after human input).
+
+2. **Loom JSON versioning**
+
+   * Add a simple `"version": 0` (or similar) field to `Loom.to_dict()` output so future schema changes can be managed and older sessions migrated or handled gracefully.
+
+3. **Manifest richness**
+
+   * Consider including redundant but human‑friendly fields in each NDJSON line (e.g. chosen node text, clarification question text) to make logs interpretable without loading the full Loom JSON.
+
+4. **Full‑text caching trade‑offs**
+
+   * `Node.full_text` caches ancestor text for simplicity; if trees grow very large, it may be worth revisiting (e.g. reconstructing context from parent links or offering filtered exports for analysis).
+
+5. **Testing & CI depth**
+
+   * Phase 0 uses unit tests; later phases can add property‑based tests for graph invariants and CI that enforces coverage targets from `Docs/testing-strategy.md`.
