@@ -1,0 +1,10 @@
+# Local Python environments and tooling
+.venv/
+.pytest_cache/
+.coverage
+
+# Tooling / agent artifacts
+.claude/
+
+# OS-level cruft
+.DS_Store
